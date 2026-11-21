@@ -1,0 +1,26 @@
+---
+title: Bynk
+description: The theme fixture's home page.
+template: splash
+hero:
+  tagline: Architecture-first. Statically typed. Compiles to the web.
+  actions:
+    - text: Read the Book
+      link: /book/chapter/
+      icon: right-arrow
+      variant: primary
+    - text: Open the playground
+      link: https://playground.bynk-lang.dev
+      icon: external
+      variant: minimal
+---
+
+```bynk
+context greeter
+
+service api from http {
+  on GET("/hello/:name") (name: String) -> Effect[HttpResult[String]] by Visitor {
+    Ok("Hello, \(name)!")
+  }
+}
+```

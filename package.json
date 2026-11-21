@@ -1,0 +1,49 @@
+{
+  "name": "@bynk-lang/site-theme",
+  "version": "0.1.0",
+  "description": "The Bynk brand for Starlight sites: design-system tokens, the shared header and wordmark, fonts, the Bynk grammar and code themes.",
+  "type": "module",
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bynk-lang/site-theme.git"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./nav": "./nav.js",
+    "./styles/*": "./styles/*",
+    "./components/*": "./components/*",
+    "./themes/*": "./themes/*",
+    "./grammars/*": "./grammars/*",
+    "./tokens/*": "./tokens/*"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "virtual.d.ts",
+    "nav.js",
+    "components",
+    "styles",
+    "themes",
+    "grammars",
+    "tokens"
+  ],
+  "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "check": "node scripts/generate.mjs --check",
+    "test": "node --test test/*.test.mjs"
+  },
+  "peerDependencies": {
+    "@astrojs/starlight": ">=0.42.0",
+    "astro": ">=7.0.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}

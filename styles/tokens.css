@@ -1,0 +1,101 @@
+/* GENERATED from tokens/tokens.json by scripts/generate.mjs: do not edit.
+ * Dark is the default; light applies under [data-theme="light"], and to a page with no data-theme whose reader prefers light. */
+
+:root {
+  color-scheme: dark;
+  --bynk-surface-ground: #0e1513;
+  --bynk-surface-panel: #151e1b;
+  --bynk-surface-raised: #1d2825;
+  --bynk-line: #2b3a35;
+  --bynk-line-strong: #5f7a70;
+  --bynk-ink: #e8efe9;
+  --bynk-ink-muted: #9fb0a8;
+  --bynk-brand: #f2b134;
+  --bynk-on-brand: #1a1405;
+  --bynk-brand-text: #f2b134;
+  --bynk-accent: #3cc4a6;
+  --bynk-danger: #ff8a78;
+  --bynk-syn-keyword: #f2b134;
+  --bynk-syn-type: #6fd3e8;
+  --bynk-syn-string: #a5dc86;
+  --bynk-syn-number: #ffb08a;
+  --bynk-syn-comment: #8a9c94;
+  --bynk-syn-capability: #3cc4a6;
+  --bynk-shadow-pop: 0 8px 24px rgba(0,0,0,0.5);
+  --bynk-font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --bynk-font-mono: "JetBrainsMono Nerd Font", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --bynk-text-display-size: 40px;
+  --bynk-text-display-line-height: 44px;
+  --bynk-text-display-weight: 700;
+  --bynk-text-title-size: 20px;
+  --bynk-text-title-line-height: 28px;
+  --bynk-text-title-weight: 650;
+  --bynk-text-body-size: 14px;
+  --bynk-text-body-line-height: 22px;
+  --bynk-text-body-weight: 400;
+  --bynk-text-label-size: 12px;
+  --bynk-text-label-line-height: 16px;
+  --bynk-text-label-weight: 600;
+  --bynk-text-code-size: 13px;
+  --bynk-text-code-line-height: 22px;
+  --bynk-text-code-weight: 400;
+  --bynk-text-code-small-size: 12px;
+  --bynk-text-code-small-line-height: 18px;
+  --bynk-text-code-small-weight: 400;
+  --bynk-space-1: 4px;
+  --bynk-space-2: 8px;
+  --bynk-space-3: 12px;
+  --bynk-space-4: 16px;
+  --bynk-space-6: 24px;
+  --bynk-radius-sm: 4px;
+  --bynk-radius-md: 8px;
+  --bynk-radius-lg: 14px;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bynk-surface-ground: #f6f3ec;
+  --bynk-surface-panel: #fffdf8;
+  --bynk-surface-raised: #ffffff;
+  --bynk-line: #d9d3c5;
+  --bynk-line-strong: #7d8a83;
+  --bynk-ink: #1b2421;
+  --bynk-ink-muted: #55625c;
+  --bynk-brand: #f2b134;
+  --bynk-on-brand: #1a1405;
+  --bynk-brand-text: #7a4f00;
+  --bynk-accent: #0b6b5c;
+  --bynk-danger: #b3261e;
+  --bynk-syn-keyword: #7a4f00;
+  --bynk-syn-type: #0a5f78;
+  --bynk-syn-string: #2f6b17;
+  --bynk-syn-number: #a3410f;
+  --bynk-syn-comment: #5f6b65;
+  --bynk-syn-capability: #0b6b5c;
+  --bynk-shadow-pop: 0 8px 24px rgba(27,36,33,0.16);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --bynk-surface-ground: #f6f3ec;
+    --bynk-surface-panel: #fffdf8;
+    --bynk-surface-raised: #ffffff;
+    --bynk-line: #d9d3c5;
+    --bynk-line-strong: #7d8a83;
+    --bynk-ink: #1b2421;
+    --bynk-ink-muted: #55625c;
+    --bynk-brand: #f2b134;
+    --bynk-on-brand: #1a1405;
+    --bynk-brand-text: #7a4f00;
+    --bynk-accent: #0b6b5c;
+    --bynk-danger: #b3261e;
+    --bynk-syn-keyword: #7a4f00;
+    --bynk-syn-type: #0a5f78;
+    --bynk-syn-string: #2f6b17;
+    --bynk-syn-number: #a3410f;
+    --bynk-syn-comment: #5f6b65;
+    --bynk-syn-capability: #0b6b5c;
+    --bynk-shadow-pop: 0 8px 24px rgba(27,36,33,0.16);
+  }
+}

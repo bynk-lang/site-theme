@@ -1,0 +1,675 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Bynk",
+  "scopeName": "source.bynk",
+  "fileTypes": ["bynk"],
+  "injections": {
+    "L:meta.interpolated.bynk - meta.embedded.interpolation.bynk": {
+      "comment": "#90: a non-raw tagged multi-line string (\"\"\"sql) is still a Bynk string, so `\\(…)` is a hole anywhere in its body — inside the embedded language's own strings and comments, and in value position (`\"n\": \\(x)`), where that grammar's rules, not the body's top-level includes, are active. The `L:` makes the hole win over the embedded rule at the same position (JSON's invalid-escape rule). Raw r\"\"\"sql bodies carry no meta.interpolated.bynk, so they stay literal; inside a hole the exclusion stops a raw Bynk string from growing a hole. #string-escape comes first, as in #strings, so an escaped `\\\\(` is a backslash and a literal paren even where the embedded grammar has no escapes of its own (a SQL '…', a JS comment); Bynk decodes those escapes before the embedded language sees the text.",
+      "patterns": [
+        { "include": "#string-escape" },
+        { "include": "#interpolation" }
+      ]
+    }
+  },
+  "patterns": [
+    { "include": "#doc-block" },
+    { "include": "#doc-line" },
+    { "include": "#line-comment" },
+    { "include": "#annotations" },
+    { "include": "#keyword-members" },
+    { "include": "#keyword-labels" },
+    { "include": "#keywords" },
+    { "include": "#builtins" },
+    { "include": "#types" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#constants" },
+    { "include": "#operators" },
+    { "include": "#identifiers" }
+  ],
+  "repository": {
+    "doc-block": {
+      "comment": "A doc-block closes only on a marker of its opener's length (ADR 0449), and its content is Markdown. A child begin/end rule stops the parent's end being tried, so a code fence inside the block must also end at the block's own marker; a child cannot backreference the parent's capture, hence one rule per marker length (3, 4, and 5 or more, which is approximate).",
+      "patterns": [
+        { "include": "#doc-block-3" },
+        { "include": "#doc-block-4" },
+        { "include": "#doc-block-long" }
+      ]
+    },
+    "doc-block-3": {
+      "name": "comment.block.documentation.bynk",
+      "begin": "^\\s*(---)\\s*$",
+      "end": "^\\s*(---)\\s*$",
+      "patterns": [
+        { "include": "#doc-fence-bynk-3" },
+        { "include": "#doc-fence-raw-3" },
+        { "include": "#doc-markdown" }
+      ]
+    },
+    "doc-block-4": {
+      "name": "comment.block.documentation.bynk",
+      "begin": "^\\s*(----)\\s*$",
+      "end": "^\\s*(----)\\s*$",
+      "patterns": [
+        { "include": "#doc-fence-bynk-4" },
+        { "include": "#doc-fence-raw-4" },
+        { "include": "#doc-markdown" }
+      ]
+    },
+    "doc-block-long": {
+      "name": "comment.block.documentation.bynk",
+      "begin": "^\\s*(-{5,})\\s*$",
+      "end": "^\\s*\\1\\s*$",
+      "patterns": [
+        { "include": "#doc-fence-bynk-long" },
+        { "include": "#doc-fence-raw-long" },
+        { "include": "#doc-markdown" }
+      ]
+    },
+    "doc-fence-bynk-3": {
+      "comment": "A ```bynk fence in a doc-block, highlighted as Bynk. It ends on its closing fence, or just before the doc-block's own marker so the block still closes there.",
+      "name": "markup.fenced_code.block.markdown",
+      "contentName": "meta.embedded.block.bynk",
+      "begin": "(^|\\G)(\\s*)(`{3,}|~{3,})\\s*(?i:(bynk)((\\s+|:|,|\\{|\\?)[^`]*)?$)",
+      "end": "(^|\\G)(\\2|\\s{0,3})(\\3)\\s*$|(?=^\\s*---\\s*$)",
+      "beginCaptures": {
+        "3": { "name": "punctuation.definition.markdown" },
+        "4": { "name": "fenced_code.block.language.markdown" }
+      },
+      "endCaptures": { "3": { "name": "punctuation.definition.markdown" } },
+      "patterns": [{ "include": "source.bynk" }]
+    },
+    "doc-fence-bynk-4": {
+      "name": "markup.fenced_code.block.markdown",
+      "contentName": "meta.embedded.block.bynk",
+      "begin": "(^|\\G)(\\s*)(`{3,}|~{3,})\\s*(?i:(bynk)((\\s+|:|,|\\{|\\?)[^`]*)?$)",
+      "end": "(^|\\G)(\\2|\\s{0,3})(\\3)\\s*$|(?=^\\s*----\\s*$)",
+      "beginCaptures": {
+        "3": { "name": "punctuation.definition.markdown" },
+        "4": { "name": "fenced_code.block.language.markdown" }
+      },
+      "endCaptures": { "3": { "name": "punctuation.definition.markdown" } },
+      "patterns": [{ "include": "source.bynk" }]
+    },
+    "doc-fence-bynk-long": {
+      "name": "markup.fenced_code.block.markdown",
+      "contentName": "meta.embedded.block.bynk",
+      "begin": "(^|\\G)(\\s*)(`{3,}|~{3,})\\s*(?i:(bynk)((\\s+|:|,|\\{|\\?)[^`]*)?$)",
+      "end": "(^|\\G)(\\2|\\s{0,3})(\\3)\\s*$|(?=^\\s*-{5,}\\s*$)",
+      "beginCaptures": {
+        "3": { "name": "punctuation.definition.markdown" },
+        "4": { "name": "fenced_code.block.language.markdown" }
+      },
+      "endCaptures": { "3": { "name": "punctuation.definition.markdown" } },
+      "patterns": [{ "include": "source.bynk" }]
+    },
+    "doc-fence-raw-3": {
+      "comment": "Any other fence in a doc-block: raw text, no Markdown inside.",
+      "name": "markup.fenced_code.block.markdown",
+      "contentName": "markup.raw.block.markdown",
+      "begin": "(^|\\G)(\\s*)(`{3,}|~{3,})(.*)$",
+      "end": "(^|\\G)(\\2|\\s{0,3})(\\3)\\s*$|(?=^\\s*---\\s*$)",
+      "beginCaptures": {
+        "3": { "name": "punctuation.definition.markdown" },
+        "4": { "name": "fenced_code.block.language.markdown" }
+      },
+      "endCaptures": { "3": { "name": "punctuation.definition.markdown" } }
+    },
+    "doc-fence-raw-4": {
+      "name": "markup.fenced_code.block.markdown",
+      "contentName": "markup.raw.block.markdown",
+      "begin": "(^|\\G)(\\s*)(`{3,}|~{3,})(.*)$",
+      "end": "(^|\\G)(\\2|\\s{0,3})(\\3)\\s*$|(?=^\\s*----\\s*$)",
+      "beginCaptures": {
+        "3": { "name": "punctuation.definition.markdown" },
+        "4": { "name": "fenced_code.block.language.markdown" }
+      },
+      "endCaptures": { "3": { "name": "punctuation.definition.markdown" } }
+    },
+    "doc-fence-raw-long": {
+      "name": "markup.fenced_code.block.markdown",
+      "contentName": "markup.raw.block.markdown",
+      "begin": "(^|\\G)(\\s*)(`{3,}|~{3,})(.*)$",
+      "end": "(^|\\G)(\\2|\\s{0,3})(\\3)\\s*$|(?=^\\s*-{5,}\\s*$)",
+      "beginCaptures": {
+        "3": { "name": "punctuation.definition.markdown" },
+        "4": { "name": "fenced_code.block.language.markdown" }
+      },
+      "endCaptures": { "3": { "name": "punctuation.definition.markdown" } }
+    },
+    "doc-markdown": {
+      "comment": "Markdown in doc prose, from VS Code's built-in grammar. Only single-line rules: Markdown's block rules (paragraph, list, blockquote) are begin/while, which would run past the doc-block's closing marker, so list and quote markers are matched here instead. Headings are matched here too, since Markdown's own allows at most three spaces of indent and doc-blocks are often indented, with tabs among others.",
+      "patterns": [
+        {
+          "name": "markup.heading.markdown",
+          "match": "^\\s*(#{1,6})\\s+(.*?)(?:\\s+#+)?\\s*$",
+          "captures": {
+            "1": { "name": "punctuation.definition.heading.markdown" },
+            "2": {
+              "name": "entity.name.section.markdown",
+              "patterns": [{ "include": "text.html.markdown#inline" }]
+            }
+          }
+        },
+        {
+          "match": "^\\s*([-*+]|[0-9]+[.)])(?=\\s)",
+          "captures": {
+            "1": { "name": "punctuation.definition.list.begin.markdown" }
+          }
+        },
+        {
+          "match": "^\\s*(>)",
+          "captures": {
+            "1": { "name": "punctuation.definition.quote.begin.markdown" }
+          }
+        },
+        { "include": "text.html.markdown#inline" }
+      ]
+    },
+    "doc-line": {
+      "comment": "#2203: a `--- text` one-line doc: three or more dashes, a space or tab, then text, first on its line. A marker alone on its line is a doc-block fence, which #doc-block matches first. An optional closer, a final run of exactly the opener's dashes after whitespace, is punctuation, not text. The text is inline Markdown.",
+      "name": "comment.line.documentation.bynk",
+      "match": "^\\s*(-{3,})[ \\t]+(\\S.*?)(?:[ \\t]+(\\1))?[ \\t]*$",
+      "captures": {
+        "1": { "name": "punctuation.definition.comment.bynk" },
+        "2": { "patterns": [{ "include": "text.html.markdown#inline" }] },
+        "3": { "name": "punctuation.definition.comment.bynk" }
+      }
+    },
+    "line-comment": {
+      "comment": "#2203: a `//` comment, anywhere on a line.",
+      "name": "comment.line.double-slash.bynk",
+      "match": "//.*$"
+    },
+    "annotations": {
+      "comment": "Storage-field annotations `@ttl(…)`/`@indexed(…)`/`@retain(…)`/`@bounded(…)` (ADR 0111). Highlights the `@name` marker; the argument list is left to the ordinary number/identifier patterns.",
+      "match": "(@)([A-Za-z_][A-Za-z0-9_]*)",
+      "captures": {
+        "1": { "name": "punctuation.definition.annotation.bynk" },
+        "2": { "name": "entity.name.function.decorator.bynk" }
+      }
+    },
+    "keyword-labels": {
+      "comment": "#79 (bynk#2837): a reserved word names a field where it is a label, followed by `:` (`{ type: String }`, `Account { type: t, .. }`, `Push(from: …)`). The words are those #keywords and #constants colour unconditionally; a guarded contextual word (`key`, `store`, `trace`, …) is already an identifier before `:`. `::` and `:=` are not a label's colon.",
+      "name": "variable.other.property.bynk",
+      "match": "\\b(commons|context|adapter|binding|suite|case|property|type|event|asset|embed|const|fn|capability|provides|stub|service|agent|actor|invariant|transition|requires|ensures|exports|uses|consumes|protocol|messages|if|else|let|do|match|is|on|given|call|as|expect|from|http|cron|queue|websocket|schedule|message|self|opaque|transparent|where|implies|enum|record|called|never|once|times|before|returns|each|fails|true|false)\\b(?=\\s*:(?![:=]))"
+    },
+    "keyword-members": {
+      "comment": "#79 (bynk#2837): a reserved word after `.` on the same line is a member: a method when a call or type arguments follow (`Sorted.from(xs)`, `fn Sorted.from(…)`), a field otherwise (`a.type`). A one-line match keeps the compiler's same-line rule; `(?<!\\.)` leaves `..` and `...` alone. The words are #keyword-labels' plus `trace` and `faults`, whose guards a member can trip.",
+      "patterns": [
+        {
+          "match": "(?<!\\.)(\\.)[ \\t]*\\b(commons|context|adapter|binding|suite|case|property|type|event|asset|embed|const|fn|capability|provides|stub|service|agent|actor|invariant|transition|requires|ensures|exports|uses|consumes|protocol|messages|if|else|let|do|match|is|on|given|call|as|expect|from|http|cron|queue|websocket|schedule|message|self|opaque|transparent|where|implies|enum|record|called|never|once|times|before|returns|each|fails|true|false|trace|faults)\\b(?=\\s*[(\\[])",
+          "captures": {
+            "2": {
+              "name": "entity.name.function.member.bynk"
+            }
+          }
+        },
+        {
+          "match": "(?<!\\.)(\\.)[ \\t]*\\b(commons|context|adapter|binding|suite|case|property|type|event|asset|embed|const|fn|capability|provides|stub|service|agent|actor|invariant|transition|requires|ensures|exports|uses|consumes|protocol|messages|if|else|let|do|match|is|on|given|call|as|expect|from|http|cron|queue|websocket|schedule|message|self|opaque|transparent|where|implies|enum|record|called|never|once|times|before|returns|each|fails|true|false|trace|faults)\\b",
+          "captures": {
+            "2": {
+              "name": "variable.other.property.bynk"
+            }
+          }
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.declaration.bynk",
+          "match": "\\b(commons|context|adapter|binding|suite|case|property|type|event|asset|embed|const|fn|capability|provides|stub|service|agent|actor|invariant|transition|requires|ensures|exports|uses|consumes|protocol|messages)\\b"
+        },
+        {
+          "comment": "`key` and `store` are CONTEXTUAL keywords (like in the parser): they introduce an agent field only in `<kw> <name>:` position, so they stay an ordinary identifier elsewhere (a `store`/`key` function parameter, a `cache.store` context). The look-ahead requires a following `<name>:` (whitespace + identifier + colon), which a parameter `store: Int` (colon adjacent) and a member `cache.store` do not match.",
+          "name": "keyword.declaration.bynk",
+          "match": "\\b(key|store)\\b(?=\\s+[A-Za-z_][A-Za-z0-9_]*\\s*:)"
+        },
+        {
+          "comment": "State-migrations S3 (#2248): `replaces` is CONTEXTUAL after an agent's name (`agent New replaces Old {`), and `removed` before `agent` at item position (`removed agent Old`); both stay ordinary identifiers elsewhere.",
+          "name": "keyword.declaration.bynk",
+          "match": "(?<=\\bagent\\s[A-Za-z][A-Za-z0-9_]{0,63}\\s)replaces\\b|^\\s*\\bremoved\\b(?=\\s+agent\\b)"
+        },
+        {
+          "comment": "State-migrations S2 (#2224): `migrate` is a CONTEXTUAL keyword opening an agent's `migrate from N` step, highlighted only before `from`; `drop` is contextual inside a step (`drop <field>` on a line of its own), so both stay ordinary identifiers elsewhere.",
+          "name": "keyword.declaration.bynk",
+          "match": "\\bmigrate\\b(?=\\s+from\\b)|^\\s*\\bdrop\\b(?=\\s+[A-Za-z][A-Za-z0-9_]*\\s*$)"
+        },
+        {
+          "comment": "#2618: `private` is a CONTEXTUAL modifier on a `fn`, `type`, `messages`, `asset`, `embed` or `const` declaration — highlighted only immediately before one of those words, so `@cache(scope: private)` and a binding named `private` stay ordinary identifiers.",
+          "name": "storage.modifier.bynk",
+          "match": "\\bprivate\\b(?=\\s+(?:fn|type|messages|asset|embed|const)\\b)"
+        },
+        {
+          "comment": "#2137: `advance` is a CONTEXTUAL keyword opening a test case's `advance Clock by <Duration>` statement — highlighted only before `<Cap> by`, so it stays an ordinary identifier elsewhere. #3191: that `by` is a clause word here, so one rule matches the whole prefix and colours both (a TextMate lookahead rule would take the position first and leave the `by` to a later rule that could not match).",
+          "match": "\\b(advance)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s+(by)\\b",
+          "captures": {
+            "1": { "name": "keyword.control.bynk" },
+            "2": { "name": "entity.name.type.bynk" },
+            "3": { "name": "keyword.control.bynk" }
+          }
+        },
+        {
+          "comment": "#3191: `by` is a CONTEXTUAL keyword — a clause word only where an actor follows it, `by <Actor>`, `by <binder>: <Actor>` or a call's `by <Actor>(…)` — and an ordinary name (a parameter, a binding, a field) everywhere else, so it is highlighted only before a capitalised actor name, optionally behind a binder and its colon.",
+          "name": "keyword.control.bynk",
+          "match": "\\bby\\b(?=\\s+(?:[A-Za-z_][A-Za-z0-9_]*\\s*:\\s*)?[A-Z])"
+        },
+        {
+          "comment": "#2640: `par` is a CONTEXTUAL keyword opening a `par { … }` binding block — highlighted only before `{`, so it stays an ordinary identifier elsewhere.",
+          "name": "keyword.control.bynk",
+          "match": "\\bpar\\b(?=\\s*\\{)"
+        },
+        {
+          "comment": "v0.131: `cors` is a CONTEXTUAL keyword introducing a `from http` service's CORS policy — highlighted only in `cors {` position, so it stays an ordinary identifier elsewhere.",
+          "name": "keyword.declaration.bynk",
+          "match": "\\bcors\\b(?=\\s*\\{)"
+        },
+        {
+          "comment": "v0.141: `security` is a CONTEXTUAL keyword introducing a `from http` service's security-headers policy — highlighted only in `security {` position, so it stays an ordinary identifier elsewhere.",
+          "name": "keyword.declaration.bynk",
+          "match": "\\bsecurity\\b(?=\\s*\\{)"
+        },
+        {
+          "comment": "v0.142: `limits` is a CONTEXTUAL keyword introducing a `from http` service's request-limits policy — highlighted only in `limits {` position, so it stays an ordinary identifier elsewhere.",
+          "name": "keyword.declaration.bynk",
+          "match": "\\blimits\\b(?=\\s*\\{)"
+        },
+        {
+          "comment": "#2858: `json` is a CONTEXTUAL keyword introducing a `from http` service's response-JSON policy — highlighted only in `json {` position, so it stays an ordinary identifier elsewhere.",
+          "name": "keyword.declaration.bynk",
+          "match": "\\bjson\\b(?=\\s*\\{)"
+        },
+        {
+          "comment": "v0.154: `embeds` is a CONTEXTUAL keyword introducing a sum type's declared error embeddings (`embeds E as V`) — highlighted only before a type name (uppercase), so it stays an ordinary identifier elsewhere.",
+          "name": "keyword.declaration.bynk",
+          "match": "\\bembeds\\b(?=\\s+[A-Z])"
+        },
+        {
+          "name": "keyword.control.bynk",
+          "match": "\\b(if|else|let|do|match|is|on|given|call|as|expect|from|http|cron|queue|websocket|schedule|message)\\b"
+        },
+        {
+          "name": "variable.language.self.bynk",
+          "match": "\\bself\\b"
+        },
+        {
+          "name": "keyword.other.http-method.bynk",
+          "match": "\\b(GET|POST|PUT|PATCH|DELETE)\\b"
+        },
+        {
+          "name": "keyword.modifier.bynk",
+          "match": "\\b(opaque|transparent)\\b"
+        },
+        {
+          "name": "keyword.operator.bynk",
+          "match": "\\b(where|implies|enum|record)\\b"
+        },
+        {
+          "comment": "v0.117: the observation sugar words are CONTEXTUAL keywords (parsed by lookahead, like `key`/`store`): they read as matchers only after a `Cap.op` seam reference in an `expect`. `with` is matched only when it follows `called`/`<n> times`, so an ordinary `with` identifier is left untouched; the other five are distinctive enough to highlight directly.",
+          "name": "keyword.operator.bynk",
+          "match": "\\b(called|never|once|times|before)\\b"
+        },
+        {
+          "name": "keyword.operator.bynk",
+          "match": "(?<=\\bcalled\\s|\\btimes\\s)\\bwith\\b"
+        },
+        {
+          "comment": "#1706: the fault-claim word is CONTEXTUAL — `expect <call> faults` ends the line with it, so it is matched only there; an ordinary `faults` identifier mid-expression is left untouched.",
+          "name": "keyword.operator.bynk",
+          "match": "\\bfaults\\b(?=\\s*(//.*)?$)"
+        },
+        {
+          "comment": "v0.118: the test-tier words on a `suite`/`case` header are CONTEXTUAL — a tier only after `as` (a `<name> as tier` classifier), so ordinary identifiers or `consumes … as Alias` are left untouched.",
+          "name": "keyword.operator.bynk",
+          "match": "(?<=\\bas\\s)\\b(unit|integration|system)\\b"
+        },
+        {
+          "comment": "#2134: the suite/case `env { … }` clause word is CONTEXTUAL — a keyword only at the start of a line and followed by `{`, so an ordinary `env` identifier is left untouched.",
+          "match": "^\\s*(env)\\b(?=\\s*\\{)",
+          "captures": {
+            "1": { "name": "keyword.declaration.bynk" }
+          }
+        },
+        {
+          "comment": "v0.118: the `stub Cap.op(…) <rhs>` clause right-hand-side words — contextual, but distinctive enough (like the observation matchers) to highlight directly.",
+          "name": "keyword.operator.bynk",
+          "match": "\\b(returns|each|fails)\\b"
+        },
+        {
+          "comment": "#2683: the stub latency words — `stub Cap.op(…) returns v after d` and `stub Cap.op(…) never` — contextual, so only on a `stub` line (an `after` or `never` identifier elsewhere is left untouched).",
+          "match": "^\\s*stub\\b[^\\n]*?\\breturns\\b[^\\n]*?\\s(after)\\s",
+          "captures": {
+            "1": { "name": "keyword.operator.bynk" }
+          }
+        },
+        {
+          "match": "^\\s*stub\\b[^\\n]*\\)\\s+(never)\\b",
+          "captures": {
+            "1": { "name": "keyword.operator.bynk" }
+          }
+        },
+        {
+          "comment": "v0.117: the `trace(Cap.op)` escape hatch — a test-only builtin, matched only in call position.",
+          "name": "keyword.control.bynk",
+          "match": "\\btrace\\b(?=\\s*\\()"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "support.type.builtin.bynk",
+          "match": "\\b(Int|String|Bool|Float|Duration|Instant|Bytes|Decimal|Result|Option|Effect|ValidationError|DecodeError|JsonError|HttpResult|List|Map|History)\\b"
+        },
+        {
+          "name": "support.function.predicate.bynk",
+          "match": "\\b(Matches|InRange|MinLength|MaxLength|Length|NonNegative|Positive|NonEmpty|IsoDate)\\b"
+        },
+        {
+          "name": "entity.name.type.bynk",
+          "match": "\\b[A-Z][A-Za-z0-9_]*\\b"
+        }
+      ]
+    },
+    "strings": {
+      "comment": "String literals (#2619): raw multi-line, multi-line, raw (any number of `#`), and ordinary. A raw literal has no escapes and no interpolation. Order matters: `r\"\"\"` and `\"\"\"` before `\"`. #2958: a multi-line literal may carry a language tag (`\"\"\"sql`). A known tag embeds that language's grammar in the body: one rule per tag, ahead of the untagged rules, since a TextMate include cannot be chosen by a capture. Any other tag is a plain string. The body is a begin/while rule that stops at the closing-delimiter line (the lexer's rule: indentation, then `\"\"\"` not followed by an identifier character or a quote), as Markdown's fenced code blocks do. The `while` is checked at every line start, even inside the embedded grammar's open rules, so an unclosed quote or bracket in the body cannot carry that language past the closing `\"\"\"`. This file is a copy of vscode-bynk's syntaxes/bynk.tmLanguage.json: change both together.",
+      "patterns": [
+        {
+          "begin": "\\br(\"\"\")(sql)[ \\t]*$",
+          "beginCaptures": { "0": { "name": "string.quoted.triple.raw.bynk" }, "2": { "name": "entity.other.attribute-name.language-tag.bynk" } },
+          "end": "^[ \\t]*(\"\"\")",
+          "endCaptures": { "1": { "name": "string.quoted.triple.raw.bynk" } },
+          "patterns": [
+            {
+              "begin": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "while": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "contentName": "meta.embedded.block.sql",
+              "patterns": [
+                { "include": "source.sql" }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "\\br(\"\"\")(json)[ \\t]*$",
+          "beginCaptures": { "0": { "name": "string.quoted.triple.raw.bynk" }, "2": { "name": "entity.other.attribute-name.language-tag.bynk" } },
+          "end": "^[ \\t]*(\"\"\")",
+          "endCaptures": { "1": { "name": "string.quoted.triple.raw.bynk" } },
+          "patterns": [
+            {
+              "begin": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "while": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "contentName": "meta.embedded.block.json",
+              "patterns": [
+                { "include": "source.json" }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "\\br(\"\"\")(html)[ \\t]*$",
+          "beginCaptures": { "0": { "name": "string.quoted.triple.raw.bynk" }, "2": { "name": "entity.other.attribute-name.language-tag.bynk" } },
+          "end": "^[ \\t]*(\"\"\")",
+          "endCaptures": { "1": { "name": "string.quoted.triple.raw.bynk" } },
+          "patterns": [
+            {
+              "begin": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "while": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "contentName": "meta.embedded.block.html",
+              "patterns": [
+                { "include": "text.html.basic" }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "\\br(\"\"\")(css)[ \\t]*$",
+          "beginCaptures": { "0": { "name": "string.quoted.triple.raw.bynk" }, "2": { "name": "entity.other.attribute-name.language-tag.bynk" } },
+          "end": "^[ \\t]*(\"\"\")",
+          "endCaptures": { "1": { "name": "string.quoted.triple.raw.bynk" } },
+          "patterns": [
+            {
+              "begin": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "while": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "contentName": "meta.embedded.block.css",
+              "patterns": [
+                { "include": "source.css" }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "\\br(\"\"\")(js)[ \\t]*$",
+          "beginCaptures": { "0": { "name": "string.quoted.triple.raw.bynk" }, "2": { "name": "entity.other.attribute-name.language-tag.bynk" } },
+          "end": "^[ \\t]*(\"\"\")",
+          "endCaptures": { "1": { "name": "string.quoted.triple.raw.bynk" } },
+          "patterns": [
+            {
+              "begin": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "while": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "contentName": "meta.embedded.block.js",
+              "patterns": [
+                { "include": "source.js" }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "(\"\"\")(sql)[ \\t]*$",
+          "beginCaptures": { "0": { "name": "string.quoted.triple.bynk" }, "2": { "name": "entity.other.attribute-name.language-tag.bynk" } },
+          "end": "^[ \\t]*(\"\"\")",
+          "endCaptures": { "1": { "name": "string.quoted.triple.bynk" } },
+          "patterns": [
+            {
+              "begin": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "while": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "contentName": "meta.embedded.block.sql meta.interpolated.bynk",
+              "patterns": [
+                { "include": "#string-escape" },
+                { "include": "#interpolation" },
+                { "include": "#sql-strings" },
+                { "include": "source.sql" }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "(\"\"\")(json)[ \\t]*$",
+          "beginCaptures": { "0": { "name": "string.quoted.triple.bynk" }, "2": { "name": "entity.other.attribute-name.language-tag.bynk" } },
+          "end": "^[ \\t]*(\"\"\")",
+          "endCaptures": { "1": { "name": "string.quoted.triple.bynk" } },
+          "patterns": [
+            {
+              "begin": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "while": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "contentName": "meta.embedded.block.json meta.interpolated.bynk",
+              "patterns": [
+                { "include": "#string-escape" },
+                { "include": "#interpolation" },
+                { "include": "source.json" }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "(\"\"\")(html)[ \\t]*$",
+          "beginCaptures": { "0": { "name": "string.quoted.triple.bynk" }, "2": { "name": "entity.other.attribute-name.language-tag.bynk" } },
+          "end": "^[ \\t]*(\"\"\")",
+          "endCaptures": { "1": { "name": "string.quoted.triple.bynk" } },
+          "patterns": [
+            {
+              "begin": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "while": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "contentName": "meta.embedded.block.html meta.interpolated.bynk",
+              "patterns": [
+                { "include": "#string-escape" },
+                { "include": "#interpolation" },
+                { "include": "text.html.basic" }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "(\"\"\")(css)[ \\t]*$",
+          "beginCaptures": { "0": { "name": "string.quoted.triple.bynk" }, "2": { "name": "entity.other.attribute-name.language-tag.bynk" } },
+          "end": "^[ \\t]*(\"\"\")",
+          "endCaptures": { "1": { "name": "string.quoted.triple.bynk" } },
+          "patterns": [
+            {
+              "begin": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "while": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "contentName": "meta.embedded.block.css meta.interpolated.bynk",
+              "patterns": [
+                { "include": "#string-escape" },
+                { "include": "#interpolation" },
+                { "include": "source.css" }
+              ]
+            }
+          ]
+        },
+        {
+          "begin": "(\"\"\")(js)[ \\t]*$",
+          "beginCaptures": { "0": { "name": "string.quoted.triple.bynk" }, "2": { "name": "entity.other.attribute-name.language-tag.bynk" } },
+          "end": "^[ \\t]*(\"\"\")",
+          "endCaptures": { "1": { "name": "string.quoted.triple.bynk" } },
+          "patterns": [
+            {
+              "begin": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "while": "^(?![ \\t]*\"\"\"(?![A-Za-z0-9_\"]))",
+              "contentName": "meta.embedded.block.js meta.interpolated.bynk",
+              "patterns": [
+                { "include": "#string-escape" },
+                { "include": "#interpolation" },
+                { "include": "source.js" }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.triple.raw.bynk",
+          "begin": "\\br\"\"\"([a-z][a-z0-9_-]*)?",
+          "beginCaptures": { "1": { "name": "entity.other.attribute-name.language-tag.bynk" } },
+          "end": "\"\"\""
+        },
+        {
+          "name": "string.quoted.triple.bynk",
+          "begin": "\"\"\"([a-z][a-z0-9_-]*)?",
+          "beginCaptures": { "1": { "name": "entity.other.attribute-name.language-tag.bynk" } },
+          "end": "\"\"\"",
+          "patterns": [
+            { "include": "#string-escape" },
+            { "include": "#interpolation" }
+          ]
+        },
+        {
+          "name": "string.quoted.double.raw.bynk",
+          "begin": "\\br(#*)\"",
+          "end": "\"\\1"
+        },
+        {
+          "name": "string.quoted.double.bynk",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "include": "#string-escape" },
+            { "include": "#interpolation" }
+          ]
+        }
+      ]
+    },
+    "sql-strings": {
+      "comment": "#90: SQL's own grammar matches a one-line '…', \"…\" or `…` literal with a single regex, which an injection cannot break into, so a non-raw \"\"\"sql body takes its strings as begin/end rules under SQL's scope names. The meta.interpolated.bynk injection then finds `\\(…)` holes inside them. A doubled '' is two adjacent strings, scoped the same as one.",
+      "patterns": [
+        {
+          "name": "string.quoted.single.sql",
+          "begin": "(?:(?<![a-zA-Z0-9_])(N))?(')",
+          "beginCaptures": { "2": { "name": "punctuation.definition.string.begin.sql" } },
+          "end": "'",
+          "endCaptures": { "0": { "name": "punctuation.definition.string.end.sql" } }
+        },
+        {
+          "name": "string.quoted.double.sql",
+          "begin": "\"",
+          "beginCaptures": { "0": { "name": "punctuation.definition.string.begin.sql" } },
+          "end": "\"",
+          "endCaptures": { "0": { "name": "punctuation.definition.string.end.sql" } }
+        },
+        {
+          "name": "string.quoted.other.backtick.sql",
+          "begin": "`",
+          "beginCaptures": { "0": { "name": "punctuation.definition.string.begin.sql" } },
+          "end": "`",
+          "endCaptures": { "0": { "name": "punctuation.definition.string.end.sql" } }
+        }
+      ]
+    },
+    "string-escape": {
+      "name": "constant.character.escape.bynk",
+      "match": "\\\\(?:[ntr0\"\\\\]|u\\{[0-9A-Fa-f]{1,6}\\})"
+    },
+    "interpolation": {
+      "comment": "A `\\(expr)` interpolation hole (v0.43). The escape `#string-escape` precedes this in #strings, so `\\\\(` (escaped backslash + paren) is a literal, not a hole.",
+      "name": "meta.embedded.interpolation.bynk",
+      "begin": "\\\\\\(",
+      "end": "\\)",
+      "beginCaptures": {
+        "0": { "name": "punctuation.section.interpolation.begin.bynk" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.section.interpolation.end.bynk" }
+      },
+      "patterns": [
+        { "include": "#interpolation-parens" },
+        { "include": "$self" }
+      ]
+    },
+    "interpolation-parens": {
+      "comment": "Balances nested parens inside a hole so the outer `\\)` only closes on the matching `)` (e.g. `\\(f(x))`).",
+      "begin": "\\(",
+      "end": "\\)",
+      "patterns": [
+        { "include": "#interpolation-parens" },
+        { "include": "$self" }
+      ]
+    },
+    "numbers": {
+      "name": "constant.numeric.bynk",
+      "match": "\\b[0-9]+(_[0-9]+)*(\\.[0-9]+(_[0-9]+)*)?([eE][+-]?[0-9]+(_[0-9]+)*|d)?\\b"
+    },
+    "builtins": {
+      "comment": "Capitalised builtins must precede #types so the generic entity.name.type rule does not shadow them.",
+      "patterns": [
+        { "name": "constant.language.bynk", "match": "\\b(None)\\b" },
+        {
+          "name": "support.function.builtin.mock.bynk",
+          "match": "\\bMock\\b(?=\\s*\\[)"
+        },
+        {
+          "name": "support.function.builtin.bynk",
+          "match": "\\b(Ok|Err|Some|Created|Accepted|NoContent|MovedPermanently|Found|SeeOther|TemporaryRedirect|PermanentRedirect|BadRequest|Unauthorized|Forbidden|NotFound|MethodNotAllowed|NotAcceptable|RequestTimeout|Conflict|Gone|LengthRequired|PayloadTooLarge|UnsupportedMediaType|UnprocessableEntity|TooManyRequests|UnavailableForLegalReasons|ServerError|NotImplemented|BadGateway|ServiceUnavailable|GatewayTimeout)\\b"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        { "name": "constant.language.bynk", "match": "\\b(true|false)\\b" },
+        { "name": "variable.language.self.bynk", "match": "\\bself\\b" }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.bynk",
+          "match": "->|<-|:=|=>|==|!=|<=|>=|&&|\\|\\||\\.\\.\\.|[+\\-*/=<>!?]"
+        },
+        { "name": "punctuation.separator.bynk", "match": "[,;:|]" }
+      ]
+    },
+    "identifiers": {
+      "name": "variable.other.bynk",
+      "match": "\\b[a-z_][A-Za-z0-9_]*\\b"
+    }
+  }
+}

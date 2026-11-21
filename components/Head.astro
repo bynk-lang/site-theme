@@ -1,0 +1,21 @@
+---
+// Starlight's <head>, plus the two type families. They load from a plain
+// Google Fonts stylesheet link rather than Astro's `fonts` API: that API's dev
+// pipeline once emptied the docs collection in the dev server (site-wide 404s),
+// while a stylesheet link behaves the same in dev, build and sync.
+//
+// Instrument Sans carries the interface; JetBrains Mono, with its ligatures,
+// carries code. The design system's first choice for code is the JetBrains Mono
+// Nerd Font build, self-hosted; this loads the plain build, which draws the
+// same ligatures, and the font stack in tokens.css still prefers the Nerd Font
+// where a reader has it installed.
+import Default from "@astrojs/starlight/components/Head.astro";
+---
+
+<Default />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:ital,wght@0,400..700;1,400&display=swap"
+/>
