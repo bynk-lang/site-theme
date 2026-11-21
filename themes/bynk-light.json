@@ -1,0 +1,101 @@
+{
+  "$comment": "GENERATED from tokens/tokens.json by scripts/generate.mjs: do not edit.",
+  "name": "bynk-light",
+  "type": "light",
+  "colors": {
+    "editor.background": "#fffdf8",
+    "editor.foreground": "#1b2421",
+    "editor.selectionBackground": "#d9d3c5",
+    "editorLineNumber.foreground": "#7d8a83",
+    "editorGroupHeader.tabsBackground": "#f6f3ec",
+    "tab.activeBackground": "#fffdf8",
+    "tab.activeForeground": "#1b2421",
+    "tab.inactiveForeground": "#55625c",
+    "tab.activeBorderTop": "#7a4f00",
+    "titleBar.border": "#d9d3c5",
+    "terminal.background": "#fffdf8",
+    "terminal.foreground": "#1b2421"
+  },
+  "tokenColors": [
+    {
+      "settings": {
+        "foreground": "#1b2421",
+        "background": "#fffdf8"
+      }
+    },
+    {
+      "name": "syn-keyword",
+      "scope": [
+        "keyword",
+        "storage",
+        "keyword.other.http-method"
+      ],
+      "settings": {
+        "foreground": "#7a4f00"
+      }
+    },
+    {
+      "name": "syn-type",
+      "scope": [
+        "entity.name.type",
+        "support.type",
+        "support.class",
+        "entity.other.inherited-class"
+      ],
+      "settings": {
+        "foreground": "#0a5f78"
+      }
+    },
+    {
+      "name": "syn-string",
+      "scope": [
+        "string",
+        "markup.inline.raw"
+      ],
+      "settings": {
+        "foreground": "#2f6b17"
+      }
+    },
+    {
+      "name": "syn-number",
+      "scope": [
+        "constant.numeric",
+        "constant.language",
+        "constant.character.escape"
+      ],
+      "settings": {
+        "foreground": "#a3410f"
+      }
+    },
+    {
+      "name": "syn-comment",
+      "scope": [
+        "comment",
+        "punctuation.definition.comment"
+      ],
+      "settings": {
+        "foreground": "#5f6b65"
+      }
+    },
+    {
+      "name": "syn-capability",
+      "scope": [
+        "entity.name.function.decorator",
+        "support.function.predicate"
+      ],
+      "settings": {
+        "foreground": "#0b6b5c"
+      }
+    },
+    {
+      "name": "documentation comments",
+      "scope": [
+        "comment.block.documentation",
+        "comment.line.documentation"
+      ],
+      "settings": {
+        "fontStyle": "italic"
+      }
+    }
+  ]
+}

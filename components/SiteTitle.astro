@@ -1,0 +1,54 @@
+---
+// The Bynk wordmark: the bento-blocks mark, "Bynk" with an amber full stop,
+// and whatever the site's title adds after "Bynk" ("Bynk Blog" → "Blog"), in
+// muted ink. The mark's colours are fixed so it reads the same in both themes;
+// the outline keeps the dark block visible on a dark header.
+import themeConfig from "virtual:bynk-site-theme/config";
+
+const { siteTitle, siteTitleHref } = Astro.locals.starlightRoute;
+const href = themeConfig.titleHref ?? siteTitleHref;
+const rest = siteTitle.replace(/^Bynk\b\s*/, "");
+---
+
+<a href={href} class="site-title" aria-label={`${siteTitle}, home`}>
+  <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="1" y="1" width="22" height="10" rx="3" fill="#f2b134"></rect>
+    <rect x="1" y="13" width="10" height="10" rx="3" fill="#3cc4a6"></rect>
+    <rect x="13.5" y="13.5" width="9" height="9" rx="2.5" fill="#1d2825" stroke="#5f7a70"></rect>
+  </svg>
+  <span class="word" translate="no">Bynk<span class="stop">.</span></span>
+  {rest && <span class="rest">{rest}</span>}
+</a>
+
+<style>
+  @layer starlight.core {
+    .site-title {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      min-height: 2.75rem;
+      font-family: var(--bynk-font-sans);
+      font-size: var(--sl-text-h4);
+      text-decoration: none;
+      white-space: nowrap;
+      min-width: 0;
+      color: var(--bynk-ink);
+    }
+    .mark {
+      width: 1.5rem;
+      height: 1.5rem;
+      flex: none;
+    }
+    .word {
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .stop {
+      color: var(--bynk-brand-text);
+    }
+    .rest {
+      font-weight: 500;
+      color: var(--bynk-ink-muted);
+    }
+  }
+</style>
