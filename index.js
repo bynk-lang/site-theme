@@ -5,7 +5,8 @@
 //   starlight({ plugins: [bynkSiteTheme()] })
 //
 // It adds the token and Starlight stylesheets ahead of the site's own CSS,
-// overrides Head, Header and SiteTitle, and gives Expressive Code the Bynk
+// overrides Head, Header, SiteTitle and Footer, labels the search box for both
+// sites ("Search docs and blog"), and gives Expressive Code the Bynk
 // grammar and the two code themes. Anything the site sets itself wins: a
 // component the site overrides stays the site's, a `bynk` grammar the site
 // registers is kept, and explicit Expressive Code themes are not replaced.
@@ -27,6 +28,12 @@ export const bynkLanguage = {
 
 export const codeThemes = [darkTheme, lightTheme];
 
+/** The search button's label, for each English locale the sites use. */
+export const SEARCH_LABEL = {
+  en: { "search.label": "Search docs and blog" },
+  "en-GB": { "search.label": "Search docs and blog" },
+};
+
 /**
  * @param {import("./index").BynkSiteThemeOptions} [options]
  * @returns {import("@astrojs/starlight/types").StarlightPlugin}
@@ -35,11 +42,17 @@ export default function bynkSiteTheme(options = {}) {
   const themeConfig = {
     origin: options.origin ?? "",
     titleHref: options.titleHref ?? null,
+    licence: options.licence ?? [],
   };
 
   return {
     name: PKG,
     hooks: {
+      // Search covers both sites (bynk-lang/bynk#4022), so its button says so.
+      // A site's own UI strings still win over these.
+      "i18n:setup"({ injectTranslations }) {
+        injectTranslations(SEARCH_LABEL);
+      },
       "config:setup"({ config, updateConfig, addIntegration }) {
         const userEc = config.expressiveCode;
         /** @type {any} */
@@ -67,6 +80,7 @@ export default function bynkSiteTheme(options = {}) {
             Head: `${PKG}/components/Head.astro`,
             Header: `${PKG}/components/Header.astro`,
             SiteTitle: `${PKG}/components/SiteTitle.astro`,
+            Footer: `${PKG}/components/Footer.astro`,
             ...config.components,
           },
           expressiveCode,

@@ -94,8 +94,37 @@ plugins: [bynkSiteTheme({ origin: "https://bynk-lang.org" })],
 
 | Option | Default | What it does |
 |---|---|---|
-| `origin` | none | Prefixes the header's cross-site links, so they work from another host |
+| `origin` | none | Prefixes the header's and the site map's cross-site links, so they work from another host |
 | `titleHref` | the site's home | Where the wordmark links |
+| `licence` | none | The licence line at the end of every page: `[{ label, href? }]`, joined with " · " |
+
+The docs site and the blog license differently, so each says its own:
+
+```js
+bynkSiteTheme({
+  licence: [
+    { label: "Posts CC BY 4.0", href: "https://github.com/bynk-lang/blog/blob/main/LICENSE-CC-BY-4.0.md" },
+    { label: "Snippets MIT", href: "https://github.com/bynk-lang/blog/blob/main/LICENSE-MIT" },
+  ],
+})
+```
+
+### The shell
+
+- **The header:**
+  - On the left, the wordmark and the sections: Book, Examples, Reference and Blog.
+  - On the right, search, Playground ↗, the social links and the theme menu.
+  - The search button reads "Search docs and blog", since each site's search covers both. It opens with `/` as well as Ctrl/⌘ K.
+- **The footer:** Starlight's own footer (edit link, previous and next), then a strip on every page with the mark, "Bynk is pre-1.0 and evolving in small, spec-first increments." and the `licence` line.
+- **The site map:** four columns, Learn, Examples, Reference and Project, as the home page's mockup draws them. A site places it where it wants it:
+
+  ```mdx
+  import SiteMapFooter from "@bynk-lang/site-theme/components/SiteMapFooter.astro";
+
+  <SiteMapFooter />
+  ```
+
+The sections and the site map's links are in `nav.js`, so both sites show the same ones.
 
 ### What the site keeps
 
@@ -104,8 +133,9 @@ sets itself:
 
 - The theme's stylesheets go **before** the site's `customCss`, so a site's own
   rules win.
-- A component the site overrides (`Header`, `Head`, `SiteTitle`) stays the
-  site's.
+- A component the site overrides (`Header`, `Head`, `SiteTitle`, `Footer`)
+  stays the site's.
+- A site's own UI strings (`search.label`) win over the theme's.
 - A `bynk` grammar the site registers is used instead of the theme's.
 - Expressive Code `themes` and `styleOverrides` the site sets are kept.
 - `expressiveCode: false` stays off.
@@ -155,7 +185,7 @@ npm run generate
 
 ```bash
 npm run check    # the generated files are up to date
-npm test         # tokens, contrast in both themes, the header, the plugin
+npm test         # tokens, contrast in both themes, the header, the site map, the plugin
 ```
 
 `fixture/` is a small Starlight site that uses the theme. CI packs the theme

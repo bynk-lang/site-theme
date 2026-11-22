@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0
+
+The site shell, as the site mockups draw it (bynk-lang/bynk#4025).
+
+- **Header:**
+  - The sections are Book, **Examples** (was By Example), Reference and Blog.
+  - **Playground** leaves the sections for the right-hand group, as an external link with an ↗ mark.
+  - Search sits on the right, after the sections. It is labelled **"Search docs and blog"**, and **`/`** opens it as well as Ctrl/⌘ K.
+- **Footer:** every page ends with Starlight's footer and then a strip: the mark, "Bynk is pre-1.0 and evolving in small, spec-first increments." and the site's licence, from the new **`licence`** option.
+- **Site map:** a new `SiteMapFooter.astro` component, with the home page's four columns: Learn, Examples, Reference and Project.
+- **`nav.js`** exports `PLAYGROUND`, `SITE_MAP` and `siteMapFor`.
+
 ## 0.2.0
 
 - The header's Reference link goes to `/reference/`, and Developer Docs leaves

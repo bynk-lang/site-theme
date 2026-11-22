@@ -11,6 +11,12 @@ export interface BynkSiteThemeOptions {
    * Where the wordmark links. Defaults to the site's own home page.
    */
   titleHref?: string;
+  /**
+   * The licence line at the end of every page, as parts joined with " · ",
+   * each linking to its licence file. The docs site and the blog license
+   * differently, so each says its own.
+   */
+  licence?: { label: string; href?: string }[];
 }
 
 /** The Bynk site theme, as a Starlight plugin. */
@@ -18,6 +24,9 @@ export default function bynkSiteTheme(options?: BynkSiteThemeOptions): Starlight
 
 /** The Bynk TextMate grammar, ready for Shiki (`name: "bynk"`). */
 export const bynkLanguage: Record<string, unknown>;
+
+/** The search button's label, as injected for each English locale. */
+export const SEARCH_LABEL: Record<string, Record<string, string>>;
 
 /** The dark and light code themes, generated from the design system. */
 export const codeThemes: Record<string, unknown>[];

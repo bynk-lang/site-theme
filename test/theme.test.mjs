@@ -8,8 +8,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import { outputs, loadTokens, valueIn } from "../scripts/generate.mjs";
-import { navFor } from "../nav.js";
-import bynkSiteTheme, { bynkLanguage } from "../index.js";
+import { navFor, siteMapFor, SITE_MAP, PLAYGROUND } from "../nav.js";
+import bynkSiteTheme, { bynkLanguage, SEARCH_LABEL } from "../index.js";
 
 test("generated files are up to date", () => {
   for (const [file, text] of Object.entries(outputs())) {
@@ -86,24 +86,48 @@ test("the header marks the longest matching section", () => {
   assert.equal(current("/"), undefined);
 });
 
-test("the header lists the three documentation surfaces, then the blog and playground", () => {
+test("the header lists the three documentation surfaces, then the blog", () => {
   assert.deepEqual(
     navFor("/").map((l) => l.label),
-    ["Book", "By Example", "Reference", "Blog", "Playground"],
+    ["Book", "Examples", "Reference", "Blog"],
   );
   assert.equal(navFor("/").find((l) => l.label === "Reference")?.href, "/reference/");
+  assert.equal(navFor("/by-example/snippets/opaque-type/").find((l) => l.current)?.label, "Examples");
 });
 
-test("an origin makes the header's links absolute", () => {
+test("the playground stands apart from the sections, as an external link", () => {
+  assert.equal(PLAYGROUND.href, "https://playground.bynk-lang.dev");
+  assert.equal(PLAYGROUND.external, true);
+  assert.ok(!navFor("/").some((l) => l.label === "Playground"));
+});
+
+test("an origin makes the header's and the site map's links absolute", () => {
   const links = navFor("/blog/", { origin: "https://bynk-lang.org/" });
   assert.equal(links.find((l) => l.label === "Book")?.href, "https://bynk-lang.org/book/");
-  assert.equal(links.find((l) => l.label === "Playground")?.href, "https://playground.bynk-lang.dev");
+  const map = siteMapFor({ origin: "https://bynk-lang.org" }).flatMap((c) => c.links);
+  assert.equal(map.find((l) => l.label === "Changelog")?.href, "https://bynk-lang.org/reference/releases/");
+  assert.equal(map.find((l) => l.label === "Playground")?.href, "https://playground.bynk-lang.dev");
+});
+
+test("the site map has the mockup's four columns, each link a site path or an external URL", () => {
+  assert.deepEqual(
+    SITE_MAP.map((c) => c.title),
+    ["Learn", "Examples", "Reference", "Project"],
+  );
+  for (const c of SITE_MAP) {
+    for (const l of c.links) {
+      assert.ok(
+        (l.path && /^\/[a-z0-9/#._-]*$/.test(l.path) && !l.href) || (l.href?.startsWith("https://") && l.external),
+        `${c.title} › ${l.label}`,
+      );
+    }
+  }
 });
 
 /** Run the plugin's setup hook against a config; return what it set. */
-function setup(config) {
+function setup(config, options) {
   let updated;
-  bynkSiteTheme().hooks["config:setup"]({
+  bynkSiteTheme(options).hooks["config:setup"]({
     config,
     updateConfig: (c) => (updated = c),
     addIntegration: () => {},
@@ -143,4 +167,17 @@ test("the bynk grammar is added when the site has none", () => {
 
 test("expressiveCode: false stays off", () => {
   assert.equal(setup({ expressiveCode: false }).expressiveCode, false);
+});
+
+test("the theme supplies the footer, unless the site has its own", () => {
+  assert.equal(setup({}).components.Footer, "@bynk-lang/site-theme/components/Footer.astro");
+  assert.equal(setup({ components: { Footer: "./src/Footer.astro" } }).components.Footer, "./src/Footer.astro");
+});
+
+test("the search button says it covers both sites", () => {
+  let injected;
+  bynkSiteTheme().hooks["i18n:setup"]({ injectTranslations: (t) => (injected = t) });
+  assert.equal(injected, SEARCH_LABEL);
+  assert.equal(injected["en-GB"]["search.label"], "Search docs and blog");
+  assert.equal(injected.en["search.label"], "Search docs and blog");
 });

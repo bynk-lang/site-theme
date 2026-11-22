@@ -1,7 +1,13 @@
 ---
-// The Bynk header: Starlight's own header layout (so its responsive grid keeps
-// working) plus the cross-site navigation from nav.js. The current section is
-// marked in amber, as the design system marks an active tab.
+// The Bynk header, as the site mockups draw it: the wordmark and the site's
+// sections on the left, then search, the playground, the social links and the
+// theme menu on the right. The current section is marked in amber, as the
+// design system marks an active tab. Below Starlight's `md` breakpoint the
+// sections and the right-hand group fold away, as Starlight's own do, and the
+// mobile menu carries the rest.
+//
+// Search opens with `/` as well as Starlight's Ctrl/⌘ K, unless focus is in a
+// field or a modifier is held.
 import config from "virtual:starlight/user-config";
 import themeConfig from "virtual:bynk-site-theme/config";
 
@@ -11,7 +17,7 @@ import SiteTitle from "virtual:starlight/components/SiteTitle";
 import SocialIcons from "virtual:starlight/components/SocialIcons";
 import ThemeSelect from "virtual:starlight/components/ThemeSelect";
 
-import { navFor } from "../nav.js";
+import { navFor, PLAYGROUND } from "../nav.js";
 
 const shouldRenderSearch =
   config.pagefind || config.components.Search !== "@astrojs/starlight/components/Search.astro";
@@ -23,23 +29,25 @@ const links = navFor(Astro.url.pathname, { origin: themeConfig.origin });
   <div class="title-wrapper sl-flex">
     <SiteTitle />
   </div>
-  <div class="sl-flex print:hidden">
+  <nav class="bynk-nav sl-hidden md:sl-flex print:hidden" aria-label="Site">
+    {
+      links.map((link) => (
+        <a href={link.href} {...(link.current ? { "aria-current": "page" } : {})}>
+          {link.label}
+        </a>
+      ))
+    }
+  </nav>
+  <div class="search sl-flex print:hidden">
     {shouldRenderSearch && <Search />}
   </div>
   <div class="sl-hidden md:sl-flex print:hidden right-group">
-    <nav class="bynk-nav" aria-label="Site">
-      {
-        links.map((link) => (
-          <a
-            href={link.href}
-            {...(link.external ? { rel: "noopener" } : {})}
-            {...(link.current ? { "aria-current": "page" } : {})}
-          >
-            {link.label}
-          </a>
-        ))
-      }
-    </nav>
+    <a class="playground" href={PLAYGROUND.href} rel="noopener">
+      {PLAYGROUND.label}
+      <svg viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M6 3H3v10h10v-3M9 3h4v4M13 3 7.5 8.5"></path>
+      </svg>
+    </a>
     <div class="sl-flex social-icons">
       <SocialIcons />
     </div>
@@ -48,23 +56,44 @@ const links = navFor(Astro.url.pathname, { origin: themeConfig.origin });
   </div>
 </div>
 
+<script>
+  // `/` opens search, as on many documentation sites. Starlight's own handler
+  // only listens for Ctrl/⌘ K.
+  const typing = (el: Element | null) =>
+    !!el &&
+    (el instanceof HTMLInputElement ||
+      el instanceof HTMLTextAreaElement ||
+      el instanceof HTMLSelectElement ||
+      (el as HTMLElement).isContentEditable);
+  window.addEventListener("keydown", (e) => {
+    if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey || typing(document.activeElement)) return;
+    const open = document.querySelector<HTMLButtonElement>("button[data-open-modal]");
+    if (!open || document.querySelector("dialog[open]")) return;
+    e.preventDefault();
+    open.click();
+  });
+</script>
+
 <style>
   .bynk-nav {
-    display: flex;
     gap: 0.25rem;
     align-items: center;
   }
-  .bynk-nav a {
+  .bynk-nav a,
+  .playground {
     display: flex;
     align-items: center;
     min-height: 2.75rem;
-    padding-inline: 0.625rem;
     color: var(--bynk-ink);
     text-decoration: none;
     font-size: var(--sl-text-sm);
     font-weight: 500;
   }
-  .bynk-nav a:hover {
+  .bynk-nav a {
+    padding-inline: 0.625rem;
+  }
+  .bynk-nav a:hover,
+  .playground:hover {
     color: var(--bynk-accent);
   }
   .bynk-nav a[aria-current] {
@@ -72,11 +101,17 @@ const links = navFor(Astro.url.pathname, { origin: themeConfig.origin });
     font-weight: 600;
     box-shadow: inset 0 -2px 0 var(--bynk-brand-text);
   }
-  .bynk-nav::after {
-    content: "";
-    height: 2rem;
-    margin-inline-start: 0.75rem;
-    border-inline-end: 1px solid var(--bynk-line);
+  .playground {
+    gap: 0.375rem;
+  }
+  .playground svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 </style>
 
@@ -85,7 +120,6 @@ const links = navFor(Astro.url.pathname, { origin: themeConfig.origin });
     .header {
       display: flex;
       gap: var(--sl-nav-gap);
-      justify-content: space-between;
       align-items: center;
       height: 100%;
     }
@@ -96,6 +130,13 @@ const links = navFor(Astro.url.pathname, { origin: themeConfig.origin });
       /* Avoid clipping focus ring around link inside title wrapper. */
       padding: 0.25rem;
       margin: -0.25rem;
+      min-width: 0;
+    }
+
+    /* Search takes the free space and sits at its end, after the sections. */
+    .search {
+      flex: 1 1 auto;
+      justify-content: flex-end;
       min-width: 0;
     }
 
@@ -111,33 +152,9 @@ const links = navFor(Astro.url.pathname, { origin: themeConfig.origin });
     }
 
     @media (min-width: 50rem) {
-      :global(:root[data-has-sidebar]) {
-        --__sidebar-pad: calc(2 * var(--sl-nav-pad-x));
-      }
-      :global(:root:not([data-has-toc])) {
-        --__toc-width: 0rem;
-      }
-      .header {
-        --__sidebar-width: max(0rem, var(--sl-content-inline-start, 0rem) - var(--sl-nav-pad-x));
-        --__main-column-fr: calc(
-          (
-              100% + var(--__sidebar-pad, 0rem) - var(--__toc-width, var(--sl-sidebar-width)) -
-                (2 * var(--__toc-width, var(--sl-nav-pad-x))) - var(--sl-content-inline-start, 0rem) -
-                var(--sl-content-width)
-            ) / 2
-        );
-        display: grid;
-        grid-template-columns:
-          /* 1 (site title): runs up until the main content column's left edge or the width of the title, whichever is the largest */
-          minmax(
-            calc(var(--__sidebar-width) + max(0rem, var(--__main-column-fr) - var(--sl-nav-gap))),
-            auto
-          )
-          /* 2 (search box): all free space that is available. */
-          1fr
-          /* 3 (right items): use the space that these need. */
-          auto;
-        align-content: center;
+      .search :global(site-search) {
+        width: 100%;
+        max-width: 22rem;
       }
     }
   }
