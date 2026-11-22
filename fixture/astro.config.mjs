@@ -9,7 +9,14 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "Bynk",
-      plugins: [bynkSiteTheme()],
+      plugins: [
+        bynkSiteTheme({
+          licence: [
+            { label: "Docs CC BY 4.0", href: "https://creativecommons.org/licenses/by/4.0/" },
+            { label: "Bynk MIT or Apache-2.0" },
+          ],
+        }),
+      ],
       social: [{ icon: "github", label: "GitHub", href: "https://github.com/bynk-lang/site-theme" }],
       sidebar: [
         { label: "Book", items: [{ label: "A chapter", link: "/book/chapter/" }] },
