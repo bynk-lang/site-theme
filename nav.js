@@ -12,8 +12,7 @@
 export const NAV_LINKS = [
   { label: "Book", path: "/book/" },
   { label: "By Example", path: "/by-example/" },
-  { label: "Reference", path: "/book/reference/" },
-  { label: "Developer Docs", path: "/docs/" },
+  { label: "Reference", path: "/reference/" },
   { label: "Blog", path: "/blog/" },
   { label: "Playground", href: "https://playground.bynk-lang.dev", external: true },
 ];
@@ -21,7 +20,8 @@ export const NAV_LINKS = [
 /**
  * The header's links for a page, each with its href and whether it marks the
  * current section: the link whose path is the longest prefix of the page's
- * path, so a page under /book/reference/ marks Reference rather than Book.
+ * path, so a page under /blog/posts/ marks Blog, and /reference/ marks
+ * Reference.
  *
  * @param {string} pathname the page's path, including any base (`/blog/...`)
  * @param {{ origin?: string }} [options]

@@ -1,6 +1,14 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.2.0
+
+- The header's Reference link goes to `/reference/`, and Developer Docs leaves
+  the header: bynk-lang.org now has one Reference surface, holding the
+  language reference, the tooling (formerly Developer Docs), the diagnostics,
+  the specification and the releases (bynk-lang/bynk#3935). The old paths
+  redirect, so 0.1.0's links keep working.
+
+## 0.1.0
 
 The first release: the brand both Bynk sites carried as copies, as one
 Starlight plugin.
