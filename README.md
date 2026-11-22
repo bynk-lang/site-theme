@@ -174,7 +174,7 @@ npm run dev
 
 1. Update `version` in `package.json` and add the release to `CHANGELOG.md`.
 2. Merge to `main`.
-3. Tag it: `git tag v0.1.0 && git push origin v0.1.0`.
+3. Tag it: `git tag vX.Y.Z && git push origin vX.Y.Z` (for example `v0.2.0`).
 
 The tag runs the publish workflow, which checks the tag matches the version,
 runs the checks and publishes to GitHub Packages.

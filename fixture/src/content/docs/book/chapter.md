@@ -33,4 +33,4 @@ as a literal the compiler can check.
 | `NonEmpty` | length ≥ 1 |
 | `MaxLength(n)` | length ≤ n |
 
-See the [refined-type reference](/book/reference/refined-types/).
+See the [refined-type reference](/reference/refined-types/).

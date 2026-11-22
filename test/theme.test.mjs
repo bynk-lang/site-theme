@@ -80,9 +80,18 @@ for (const theme of THEMES) {
 test("the header marks the longest matching section", () => {
   const current = (path) => navFor(path).find((l) => l.current)?.label;
   assert.equal(current("/book/tutorials/01-first-program/"), "Book");
-  assert.equal(current("/book/reference/types/"), "Reference");
+  assert.equal(current("/reference/types/"), "Reference");
+  assert.equal(current("/reference/tooling/bynk-cli/"), "Reference");
   assert.equal(current("/blog/posts/money/"), "Blog");
   assert.equal(current("/"), undefined);
+});
+
+test("the header lists the three documentation surfaces, then the blog and playground", () => {
+  assert.deepEqual(
+    navFor("/").map((l) => l.label),
+    ["Book", "By Example", "Reference", "Blog", "Playground"],
+  );
+  assert.equal(navFor("/").find((l) => l.label === "Reference")?.href, "/reference/");
 });
 
 test("an origin makes the header's links absolute", () => {
