@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import { outputs, loadTokens, valueIn } from "../scripts/generate.mjs";
-import { navFor, siteMapFor, SITE_MAP, PLAYGROUND } from "../nav.js";
+import { navFor, sectionFor, siteMapFor, SITE_MAP, PLAYGROUND } from "../nav.js";
 import bynkSiteTheme, { bynkLanguage, SEARCH_LABEL } from "../index.js";
 
 test("generated files are up to date", () => {
@@ -169,9 +169,42 @@ test("expressiveCode: false stays off", () => {
   assert.equal(setup({ expressiveCode: false }).expressiveCode, false);
 });
 
-test("the theme supplies the footer, unless the site has its own", () => {
-  assert.equal(setup({}).components.Footer, "@bynk-lang/site-theme/components/Footer.astro");
-  assert.equal(setup({ components: { Footer: "./src/Footer.astro" } }).components.Footer, "./src/Footer.astro");
+test("the theme frames the page, so its footer sits outside <main>, unless the site has its own", () => {
+  const { components } = setup({});
+  assert.equal(components.PageFrame, "@bynk-lang/site-theme/components/PageFrame.astro");
+  assert.equal(components.Footer, undefined, "Starlight's own footer (edit link, pagination) stays in <main>");
+  assert.equal(
+    setup({ components: { PageFrame: "./src/PageFrame.astro" } }).components.PageFrame,
+    "./src/PageFrame.astro",
+  );
+});
+
+test("the theme labels each page's search result with its part of the site", () => {
+  assert.equal(setup({}).components.PageTitle, "@bynk-lang/site-theme/components/PageTitle.astro");
+  assert.equal(sectionFor("/book/tutorials/first-program/"), "Book");
+  assert.equal(sectionFor("/by-example/snippets/opaque-type/"), "Examples");
+  assert.equal(sectionFor("/reference/diagnostics/bynk.types.mismatch/"), "Reference");
+  assert.equal(sectionFor("/blog/posts/money/"), "Blog");
+  assert.equal(sectionFor("/project/contributing/"), "Project");
+  assert.equal(sectionFor("/"), undefined);
+});
+
+test("the plugin passes the site map's pages to its components", () => {
+  let config;
+  bynkSiteTheme({ siteMap: ["index"] }).hooks["config:setup"]({
+    config: {},
+    updateConfig: () => {},
+    addIntegration: (i) =>
+      i.hooks["astro:config:setup"]({
+        updateConfig: ({ vite }) => {
+          const [plugin] = vite.plugins;
+          const source = plugin.load(plugin.resolveId("virtual:bynk-site-theme/config"));
+          config = JSON.parse(source.replace(/^export default |;$/g, ""));
+        },
+      }),
+  });
+  assert.deepEqual(config.siteMap, ["index"]);
+  assert.equal(config.titleHref, null);
 });
 
 test("the search button says it covers both sites", () => {

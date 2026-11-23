@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.0
+
+Accessibility and one header for both sites, from the site review.
+
+- **The page footer leaves `<main>`.** The theme now overrides `PageFrame`, and every page ends with a top-level `<footer>` (the `contentinfo` landmark) after `<main>`: the site map, then the strip with the mark and the licence. Starlight's own footer (edit link, previous and next) stays in `<main>`. The theme no longer overrides `Footer`, and `components/Footer.astro` is gone.
+- **The site map moves into that footer**, on the pages the new **`siteMap`** option names (`["index"]` for the home page). A site that placed `<SiteMapFooter />` in a page removes it and sets the option instead.
+- **Search says where each result is from.** The theme overrides `PageTitle` to label each page with its part of the site (Book, Examples, Reference, Blog or Project, from the new `sectionFor` in `nav.js`): a result's title reads "Book · Refined types", and the part is a `section` filter in Pagefind, so a search can be narrowed to one part. A site with its own `PageTitle` renders the theme's inside it.
+- **One header on every site.**
+  - A feed (`rss`) social link is no longer shown in the header. The feed is still announced in the `<head>`; a site links it in its pages.
+  - With `titleHref` set to another site's home, the wordmark reads just "Bynk." and is named "Bynk, home", since that is where it goes.
+  - The Playground link says, to screen readers, that it goes to another site.
+
 ## 0.3.2
 
 - The site map's Project column gains **Roadmap** (`/project/versioning-and-roadmap/`), and **Contributing** moves to `/project/contributing/`: both pages left the Book for the docs site's Project pages (bynk-lang/bynk#4082).

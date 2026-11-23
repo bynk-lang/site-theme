@@ -95,8 +95,9 @@ plugins: [bynkSiteTheme({ origin: "https://bynk-lang.org" })],
 | Option | Default | What it does |
 |---|---|---|
 | `origin` | none | Prefixes the header's and the site map's cross-site links, so they work from another host |
-| `titleHref` | the site's home | Where the wordmark links |
+| `titleHref` | the site's home | Where the wordmark links. Set to another site's home, the wordmark reads just "Bynk." |
 | `licence` | none | The licence line at the end of every page: `[{ label, href? }]`, joined with " · " |
+| `siteMap` | none | The pages whose footer carries the site map, by content entry id (`["index"]` for the home page) |
 
 The docs site and the blog license differently, so each says its own:
 
@@ -113,16 +114,11 @@ bynkSiteTheme({
 
 - **The header:**
   - On the left, the wordmark and the sections: Book, Examples, Reference and Blog.
-  - On the right, search, Playground ↗, the social links and the theme menu.
+  - On the right, search, Playground ↗, the social links and the theme menu. A feed (`rss`) social link is left out, so the header is the same on every site; the feed is still announced in the `<head>`, and a site links it in its pages.
   - The search button reads "Search docs and blog", since each site's search covers both. It opens with `/` as well as Ctrl/⌘ K.
-- **The footer:** Starlight's own footer (edit link, previous and next), then a strip on every page with the mark, "Bynk is pre-1.0 and evolving in small, spec-first increments." and the `licence` line.
-- **The site map:** four columns, Learn, Examples, Reference and Project, as the home page's mockup draws them. A site places it where it wants it:
-
-  ```mdx
-  import SiteMapFooter from "@bynk-lang/site-theme/components/SiteMapFooter.astro";
-
-  <SiteMapFooter />
-  ```
+- **The footer:** Starlight's own footer (edit link, previous and next) stays in `<main>`. After `<main>`, every page ends with the page's `<footer>` landmark: the site map where `siteMap` asks for it, then a strip with the mark, "Bynk is pre-1.0 and evolving in small, spec-first increments." and the `licence` line. The theme overrides `PageFrame` to put it there.
+- **The site map:** four columns, Learn, Examples, Reference and Project, as the home page's mockup draws them, on the pages `siteMap` names.
+- **Search labels:** each page is labelled with its part of the site (Book, Examples, Reference, Blog or Project). A search result's title reads "Book · Refined types", and the part is a `section` filter, so a search can be narrowed to one part. The theme's `PageTitle` adds them; a site that overrides `PageTitle` renders `@bynk-lang/site-theme/components/PageTitle.astro` inside its own to keep them.
 
 The sections and the site map's links are in `nav.js`, so both sites show the same ones.
 
@@ -133,8 +129,8 @@ sets itself:
 
 - The theme's stylesheets go **before** the site's `customCss`, so a site's own
   rules win.
-- A component the site overrides (`Header`, `Head`, `SiteTitle`, `Footer`)
-  stays the site's.
+- A component the site overrides (`Header`, `Head`, `SiteTitle`, `PageTitle`,
+  `PageFrame`) stays the site's.
 - A site's own UI strings (`search.label`) win over the theme's.
 - A `bynk` grammar the site registers is used instead of the theme's.
 - Expressive Code `themes` and `styleOverrides` the site sets are kept.
@@ -185,7 +181,7 @@ npm run generate
 
 ```bash
 npm run check    # the generated files are up to date
-npm test         # tokens, contrast in both themes, the header, the site map, the plugin
+npm test         # tokens, contrast in both themes, the header, search sections, the site map, the plugin
 ```
 
 `fixture/` is a small Starlight site that uses the theme. CI packs the theme

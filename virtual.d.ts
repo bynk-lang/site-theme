@@ -6,6 +6,8 @@ declare module "virtual:bynk-site-theme/config" {
     titleHref: string | null;
     /** The licence line's parts; empty for none. */
     licence: { label: string; href?: string }[];
+    /** The entry ids of the pages whose footer carries the site map. */
+    siteMap: string[];
   };
   export default config;
 }
