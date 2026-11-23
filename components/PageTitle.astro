@@ -1,0 +1,25 @@
+---
+// Starlight's page title, plus what search needs to say where a result is
+// from. Search on bynk-lang.org merges the docs site's and the blog's indexes,
+// so each page is labelled with its part of the site ("Book", "Examples",
+// "Reference", "Blog" or "Project", from nav.js): its search title becomes
+// "<part> · <title>", and the part is a `section` filter, so a search can be
+// narrowed to one part. The visible <h1> is unchanged.
+//
+// A site that overrides PageTitle can render this one in place of Starlight's
+// to keep the labels:
+//
+//   import PageTitle from "@bynk-lang/site-theme/components/PageTitle.astro";
+import Default from "@astrojs/starlight/components/PageTitle.astro";
+import { sectionFor } from "../nav.js";
+
+const section = sectionFor(Astro.url.pathname);
+const { title } = Astro.locals.starlightRoute.entry.data;
+---
+
+{
+  section && (
+    <span hidden data-pagefind-filter={`section:${section}`} data-pagefind-meta={`title:${section} · ${title}`} />
+  )
+}
+<Default />

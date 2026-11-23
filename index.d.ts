@@ -8,7 +8,9 @@ export interface BynkSiteThemeOptions {
    */
   origin?: string;
   /**
-   * Where the wordmark links. Defaults to the site's own home page.
+   * Where the wordmark links. Defaults to the site's own home page, and the
+   * wordmark then shows the rest of the site's title ("Bynk Blog" → "Blog").
+   * Set it to another site's home and the wordmark reads just "Bynk.".
    */
   titleHref?: string;
   /**
@@ -17,6 +19,11 @@ export interface BynkSiteThemeOptions {
    * differently, so each says its own.
    */
   licence?: { label: string; href?: string }[];
+  /**
+   * The pages whose footer carries the site map, by content entry id
+   * (`"index"` for the home page). Defaults to none.
+   */
+  siteMap?: string[];
 }
 
 /** The Bynk site theme, as a Starlight plugin. */

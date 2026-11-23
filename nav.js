@@ -18,6 +18,12 @@ export const NAV_LINKS = [
   { label: "Blog", path: "/blog/" },
 ];
 
+/** The parts of bynk-lang.org a page can belong to: the header's sections,
+ *  and the Project pages, which the footer's site map links. Search labels
+ *  and filters each result by its part (see `sectionFor`). */
+/** @type {NavLink[]} */
+export const SECTIONS = [...NAV_LINKS, { label: "Project", path: "/project/" }];
+
 /** The playground: another site, not a section, so it sits apart from the
  *  sections, with an external-link mark. */
 export const PLAYGROUND = { label: "Playground", href: "https://playground.bynk-lang.dev", external: true };
@@ -67,6 +73,26 @@ export const SITE_MAP = [
 const hrefOf = (/** @type {NavLink} */ l, /** @type {string} */ origin) =>
   l.href ?? `${origin.replace(/\/$/, "")}${l.path}`;
 
+/** The link whose path is the longest prefix of `pathname`, if any. */
+const longestMatch = (/** @type {NavLink[]} */ links, /** @type {string} */ pathname) =>
+  links
+    .filter((l) => l.path && pathname.startsWith(l.path))
+    .reduce(
+      (best, l) => (!best || (l.path?.length ?? 0) > (best.path?.length ?? 0) ? l : best),
+      /** @type {NavLink | undefined} */ (undefined),
+    );
+
+/**
+ * The part of the site a page belongs to ("Book", "Examples", "Reference",
+ * "Blog" or "Project"), or `undefined` for a page outside them, such as the
+ * home page. Search shows it on each result and offers it as a filter.
+ *
+ * @param {string} pathname the page's path, including any base (`/blog/...`)
+ */
+export function sectionFor(pathname) {
+  return longestMatch(SECTIONS, pathname)?.label;
+}
+
 /**
  * The header's links for a page, each with its href and whether it marks the
  * current section: the link whose path is the longest prefix of the page's
@@ -77,10 +103,7 @@ const hrefOf = (/** @type {NavLink} */ l, /** @type {string} */ origin) =>
  * @param {{ origin?: string }} [options]
  */
 export function navFor(pathname, { origin = "" } = {}) {
-  const current = NAV_LINKS.filter((l) => l.path && pathname.startsWith(l.path)).reduce(
-    (best, l) => (!best || (l.path?.length ?? 0) > (best.path?.length ?? 0) ? l : best),
-    /** @type {NavLink | undefined} */ (undefined),
-  );
+  const current = longestMatch(NAV_LINKS, pathname);
   return NAV_LINKS.map((l) => ({
     label: l.label,
     href: hrefOf(l, origin),

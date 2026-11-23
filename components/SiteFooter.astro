@@ -1,0 +1,104 @@
+---
+// The footer that ends every page on every Bynk site, outside <main> (see
+// PageFrame.astro): the site map on the pages named by the plugin's `siteMap`
+// option, then the strip — the mark, where Bynk is, and the site's licence,
+// set with the plugin's `licence` option.
+//
+// It lines up with the page's content column: as wide as Starlight's main
+// pane (which leaves room for the table of contents on wide screens), with
+// the content's width and padding inside it.
+import themeConfig from "virtual:bynk-site-theme/config";
+import SiteMapFooter from "./SiteMapFooter.astro";
+
+const { licence, siteMap } = themeConfig;
+// Starlight gives a site's home page the id "", which `siteMap` writes "index".
+const page = Astro.locals.starlightRoute.id || "index";
+const showSiteMap = siteMap.includes(page);
+---
+
+<footer class="bynk-site-footer">
+  <div class="inner">
+    {showSiteMap && <SiteMapFooter />}
+    <div class="bynk-footer">
+      <p class="where">
+        <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="1" y="1" width="22" height="10" rx="3" fill="#f2b134"></rect>
+          <rect x="1" y="13" width="10" height="10" rx="3" fill="#3cc4a6"></rect>
+          <rect x="13.5" y="13.5" width="9" height="9" rx="2.5" fill="#1d2825" stroke="#5f7a70"></rect>
+        </svg>
+        Bynk is pre-1.0 and evolving in small, spec-first increments.
+      </p>
+      {
+        licence.length > 0 && (
+          <p class="licence">
+            {licence.map((part, i) => (
+              <>
+                {i > 0 && <span aria-hidden="true"> · </span>}
+                {part.href ? <a href={part.href}>{part.label}</a> : <span>{part.label}</span>}
+              </>
+            ))}
+          </p>
+        )
+      }
+    </div>
+  </div>
+</footer>
+
+<style>
+  .bynk-site-footer {
+    padding: 0 var(--sl-content-pad-x) var(--bynk-space-6);
+  }
+  .inner {
+    max-width: var(--sl-content-width);
+  }
+  @media (min-width: 72rem) {
+    .inner {
+      margin-inline: var(--sl-content-margin-inline, auto);
+    }
+    /* Starlight's table of contents is fixed to the right on wide screens, so
+       the footer stops where the main pane does (TwoColumnContent.astro). */
+    :global([data-has-toc]) .bynk-site-footer {
+      width: calc(
+        100% -
+          max(
+            var(--sl-sidebar-width),
+            calc(var(--sl-sidebar-width) + (100% - var(--sl-content-width) - var(--sl-sidebar-width)) / 2)
+          )
+      );
+    }
+    :global([data-has-sidebar][data-has-toc]) .bynk-site-footer {
+      --sl-content-margin-inline: auto 0;
+    }
+  }
+  .bynk-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--bynk-space-4) var(--bynk-space-6);
+    margin-top: calc(2 * var(--bynk-space-4));
+    padding-top: var(--bynk-space-6);
+    border-top: 1px solid var(--bynk-line);
+    font-size: var(--sl-text-sm);
+    color: var(--bynk-ink-muted);
+  }
+  .bynk-footer p {
+    margin: 0;
+  }
+  .where {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+  .mark {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex: none;
+  }
+  .licence a {
+    color: var(--bynk-ink-muted);
+  }
+  .licence a:hover {
+    color: var(--bynk-accent);
+  }
+</style>

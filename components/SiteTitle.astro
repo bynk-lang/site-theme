@@ -3,14 +3,20 @@
 // and whatever the site's title adds after "Bynk" ("Bynk Blog" → "Blog"), in
 // muted ink. The mark's colours are fixed so it reads the same in both themes;
 // the outline keeps the dark block visible on a dark header.
+//
+// With the plugin's `titleHref` set, the wordmark leads to another site's home
+// (the blog's goes to bynk-lang.org), so it reads just "Bynk." and names that
+// home; the header's current section already says which part this is.
 import themeConfig from "virtual:bynk-site-theme/config";
 
 const { siteTitle, siteTitleHref } = Astro.locals.starlightRoute;
 const href = themeConfig.titleHref ?? siteTitleHref;
-const rest = siteTitle.replace(/^Bynk\b\s*/, "");
+const ownHome = themeConfig.titleHref === null;
+const rest = ownHome ? siteTitle.replace(/^Bynk\b\s*/, "") : "";
+const label = ownHome ? `${siteTitle}, home` : "Bynk, home";
 ---
 
-<a href={href} class="site-title" aria-label={`${siteTitle}, home`}>
+<a href={href} class="site-title" aria-label={label}>
   <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
     <rect x="1" y="1" width="22" height="10" rx="3" fill="#f2b134"></rect>
     <rect x="1" y="13" width="10" height="10" rx="3" fill="#3cc4a6"></rect>

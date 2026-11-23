@@ -1,10 +1,7 @@
 ---
 // The site map, in four columns, as the home page's footer draws it: Learn,
-// Examples, Reference and Project. A site places it where it wants it (the
-// docs site's home page ends with it); the Bynk strip still follows, from
-// the theme's Footer.
-//
-//   import SiteMapFooter from "@bynk-lang/site-theme/components/SiteMapFooter.astro";
+// Examples, Reference and Project. The page footer (SiteFooter.astro) shows
+// it on the pages the plugin's `siteMap` option names, outside <main>.
 import themeConfig from "virtual:bynk-site-theme/config";
 import { siteMapFor } from "../nav.js";
 
@@ -35,7 +32,6 @@ const columns = siteMapFor({ origin: themeConfig.origin });
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
     gap: var(--bynk-space-6);
-    margin-top: calc(2 * var(--bynk-space-6));
     padding-top: calc(2 * var(--bynk-space-4));
     border-top: 1px solid var(--bynk-line);
   }

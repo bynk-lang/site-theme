@@ -1,0 +1,17 @@
+---
+// Starlight's page frame, with the page's footer added after its <main>.
+// Starlight puts its own footer (the edit link, the previous and next pages)
+// inside <main>, which is right for page navigation. The site's footer — the
+// site map on the pages that carry it, the mark and the licence — belongs to
+// every page alike, so it sits outside <main> as the page's one top-level
+// <footer> (the `contentinfo` landmark), where landmark navigation expects it.
+import Default from "@astrojs/starlight/components/PageFrame.astro";
+import SiteFooter from "./SiteFooter.astro";
+---
+
+<Default>
+  <slot name="header" slot="header" />
+  <slot name="sidebar" slot="sidebar" />
+  <slot />
+  <SiteFooter />
+</Default>
