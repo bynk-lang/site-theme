@@ -57,7 +57,8 @@ export const SITE_MAP = [
       { label: "Blog", path: "/blog/" },
       { label: "GitHub", href: "https://github.com/bynk-lang/bynk", external: true },
       { label: "Changelog", path: "/reference/releases/" },
-      { label: "Contributing", path: "/book/contributing/" },
+      { label: "Roadmap", path: "/project/versioning-and-roadmap/" },
+      { label: "Contributing", path: "/project/contributing/" },
     ],
   },
 ];
