@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+- The site map's Project column gains **Roadmap** (`/project/versioning-and-roadmap/`), and **Contributing** moves to `/project/contributing/`: both pages left the Book for the docs site's Project pages (bynk-lang/bynk#4082).
+
 ## 0.3.1
 
 - The site map's **Learn Bynk** link goes to `/book/tutorials/first-program/`: the Learn Bynk chapter files lost their numbers (bynk-lang/bynk#4077), and the old URL now only redirects.

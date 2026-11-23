@@ -181,3 +181,17 @@ test("the search button says it covers both sites", () => {
   assert.equal(injected["en-GB"]["search.label"], "Search docs and blog");
   assert.equal(injected.en["search.label"], "Search docs and blog");
 });
+
+test("the Project column links the roadmap and contributing pages under /project/", () => {
+  const project = SITE_MAP.find((c) => c.title === "Project");
+  assert.deepEqual(
+    project.links.map((l) => [l.label, l.path ?? l.href]),
+    [
+      ["Blog", "/blog/"],
+      ["GitHub", "https://github.com/bynk-lang/bynk"],
+      ["Changelog", "/reference/releases/"],
+      ["Roadmap", "/project/versioning-and-roadmap/"],
+      ["Contributing", "/project/contributing/"],
+    ],
+  );
+});
