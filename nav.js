@@ -29,7 +29,7 @@ export const SITE_MAP = [
     title: "Learn",
     links: [
       { label: "Getting started", path: "/book/introduction/what-is-bynk/" },
-      { label: "Learn Bynk", path: "/book/tutorials/01-first-program/" },
+      { label: "Learn Bynk", path: "/book/tutorials/first-program/" },
       { label: "Guides", path: "/book/guides/" },
       { label: "Coming from TypeScript", path: "/book/introduction/coming-from-typescript/" },
     ],

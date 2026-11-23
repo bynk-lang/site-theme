@@ -79,7 +79,7 @@ for (const theme of THEMES) {
 
 test("the header marks the longest matching section", () => {
   const current = (path) => navFor(path).find((l) => l.current)?.label;
-  assert.equal(current("/book/tutorials/01-first-program/"), "Book");
+  assert.equal(current("/book/tutorials/first-program/"), "Book");
   assert.equal(current("/reference/types/"), "Reference");
   assert.equal(current("/reference/tooling/bynk-cli/"), "Reference");
   assert.equal(current("/blog/posts/money/"), "Blog");
