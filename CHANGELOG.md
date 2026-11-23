@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- The site map's **Learn Bynk** link goes to `/book/tutorials/first-program/`: the Learn Bynk chapter files lost their numbers (bynk-lang/bynk#4077), and the old URL now only redirects.
+
 ## 0.3.0
 
 The site shell, as the site mockups draw it (bynk-lang/bynk#4025).
