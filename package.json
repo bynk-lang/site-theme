@@ -1,6 +1,6 @@
 {
   "name": "@bynk-lang/site-theme",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "The Bynk brand for Starlight sites: design-system tokens, the shared header and wordmark, fonts, the Bynk grammar and code themes.",
   "type": "module",
   "license": "MIT OR Apache-2.0",

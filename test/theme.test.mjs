@@ -228,3 +228,32 @@ test("the Project column links the roadmap and contributing pages under /project
     ],
   );
 });
+
+test("the grammar highlights a field's `replaces` clause, and only there", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const grammar = JSON.parse(await readFile(new URL("../grammars/bynk.tmLanguage.json", import.meta.url), "utf8"));
+  const rules = [];
+  const walk = (node) => {
+    if (Array.isArray(node)) node.forEach(walk);
+    else if (node && typeof node === "object") {
+      if (typeof node.match === "string" && node.match.includes("replaces")) rules.push(new RegExp(node.match));
+      Object.values(node).forEach(walk);
+    }
+  };
+  walk(grammar);
+  const highlighted = (line) => rules.some((re) => re.test(line));
+  for (const line of [
+    "\tdisplayName: String replaces name,",
+    "\tage: Int replaces years = 18,",
+    "\tnickname: Option[String] replaces handle",
+    "\tstore seen: Cell[Int] replaces visited",
+    "\tstore seen: Cell[Int] replaces visited // renamed in 0.9",
+    "type P = { size: Int replaces width }",
+    "agent Learner replaces Student {",
+  ]) {
+    assert.ok(highlighted(line), `expected \`replaces\` to be a keyword in: ${line}`);
+  }
+  for (const line of ["let replaces = 1", "fn replaces(x: Int) -> Int { x }", "replaces.count()"]) {
+    assert.ok(!highlighted(line), `expected \`replaces\` to stay an identifier in: ${line}`);
+  }
+});
