@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+
+- **The grammar highlights a field's `replaces` clause** (`name: T replaces old`, `store seen: Cell[T] replaces old`) as a keyword, as the tree-sitter queries and the language server already do (bynk-lang/bynk#3793, bynk-lang/bynk#4484). It stays an ordinary identifier elsewhere, and `agent New replaces Old` is unchanged.
+
 ## 0.4.0
 
 Accessibility and one header for both sites, from the site review.
